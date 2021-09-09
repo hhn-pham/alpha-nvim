@@ -196,11 +196,11 @@ layout_element.button = function(el, opts, state)
         if el.opts.align_shortcut == "right"
             then
                 vim.api.nvim_buf_add_highlight(state.buffer, -1, el.opts.hl_shortcut, state.line, #el.val + padding.center, -1)
-                vim.api.nvim_buf_add_highlight(state.buffer, -1, el.opts.hl_text, state.line, #el.val + padding.center, #el.val + padding.center -1)
+                vim.api.nvim_buf_add_highlight(state.buffer, -1, el.opts.hl_text, state.line, 0, #el.val + padding.center -1)
 
             else
                 vim.api.nvim_buf_add_highlight(state.buffer, -1, el.opts.hl_shortcut, state.line, padding.left, padding.left + #el.opts.shortcut)
-                vim.api.nvim_buf_add_highlight(state.buffer, -1, el.opts.hl_text, state.line, #el.val + padding.center, #el.val + padding.center -1)
+                vim.api.nvim_buf_add_highlight(state.buffer, -1, el.opts.hl_text, state.line, 0, #el.val + padding.center -1)
         end
     end
 
