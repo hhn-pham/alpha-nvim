@@ -47,6 +47,29 @@ local function button(sc, txt, keybind, keybind_opts)
     }
 end
 
+local function icon(fn)
+    local has_nwd, nvim_web_devicons = pcall(require, 'nvim-web-devicons')
+    if has_nwd
+    then
+        local match = fn:match("^.+(%..+)$")
+        local ext = ''
+        if match ~= nil then
+            ext = match:sub(2)
+        end
+            return nvim_web_devicons.get_icon(fn, ext, { default = true })
+    else
+        return '', nil
+    end
+end
+
+local function file_button(fn, sc, short_fn)
+    short_fn = if_nil(short_fn, fn)
+    local ico, hl = icon(fn)
+    local file_button_el = button(sc, ico .. '  ' .. short_fn , ":e " .. fn .. " <CR>")
+    if hl then file_button_el.opts.hl = { { hl, 0, 1 } } end -- starts at val and not shortcut
+    return file_button_el
+end
+
 local function mru(start, cwd)
     local oldfiles = {}
     for _,v in pairs(vim.v.oldfiles) do
@@ -62,30 +85,14 @@ local function mru(start, cwd)
     end
 
     local tbl = {}
-    local function icon(fn)
-        local has_nwd, nvim_web_devicons = pcall(require, 'nvim-web-devicons')
-        if has_nwd
-        then
-            local match = fn:match("^.+(%..+)$")
-            local ext = ''
-            if match ~= nil then
-                ext = match:sub(2)
-            end
-                return nvim_web_devicons.get_icon(fn, ext, { default = true })
-        else
-            return '', nil
-        end
-    end
     for i, fn in pairs(oldfiles) do
-        local ico, hl = icon(fn)
         local short_fn
         if cwd
             then short_fn = fnamemodify(fn, ':.')
             else short_fn = fnamemodify(fn, ':~')
         end
-        local file_button = button(tostring(i+start-1), ico .. '  ' .. short_fn , ":e " .. fn .. " <CR>")
-        if hl then file_button.opts.hl = { { hl, 0, 1 } } end -- starts at val and not shortcut
-        tbl[#tbl+1] = file_button
+        local file_button_el = file_button(fn, tostring(i+start-1), short_fn)
+        tbl[#tbl+1] = file_button_el
     end
     return {
         type = "group",
@@ -163,7 +170,9 @@ local opts = {
 }
 
 return {
+    icon = icon,
     button = button,
+    file_button = file_button,
     mru = mru,
     section = section,
     opts = opts,
